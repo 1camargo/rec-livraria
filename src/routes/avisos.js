@@ -19,11 +19,11 @@ router.post("/publicar", function (req, res) {
     avisoController.publicar(req, res);
 });
 
-router.put("/editar/:idAviso", function (req, res) {
+router.put("/editar/:idLivro", function (req, res) {
     avisoController.editar(req, res);
 });
 
-router.delete("/deletar/:idAviso", function (req, res) {
+router.delete("/deletar/:idLivro", function (req, res) {
     avisoController.deletar(req, res);
 });
 

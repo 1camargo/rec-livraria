@@ -62,16 +62,20 @@ function pesquisarDescricao(req, res) {
 
 function publicar(req, res) {
     var titulo = req.body.titulo;
-    var descricao = req.body.descricao;
+    var autor = req.body.autor;
+    var precoCompra = req.body.precoCompra;
+    var precoVenda = req.body.precoVenda;
+    var qtdEstoque = req.body.qtdEstoque;
+    var genero = req.body.genero;
 
     if (titulo == undefined) {
         res.status(400).send("O título está indefinido!");
-    } else if (descricao == undefined) {
-        res.status(400).send("A descrição está indefinido!");
-    } else if (idUsuario == undefined) {
-        res.status(403).send("O id do usuário está indefinido!");
+    } else if (autor == undefined) {
+        res.status(400).send("O autor está indefinido!");
+    } else if (precoCompra == undefined) {
+        res.status(403).send("O preço de compra está indefinido!");
     } else {
-        avisoModel.publicar(titulo, descricao, idUsuario)
+        avisoModel.publicar(titulo, autor, precoCompra, precoVenda, qtdEstoque, genero)
             .then(
                 function (resultado) {
                     res.json(resultado);
@@ -89,9 +93,9 @@ function publicar(req, res) {
 
 function editar(req, res) {
     var novaDescricao = req.body.descricao;
-    var idAviso = req.params.idAviso;
+    var idLivro = req.params.idLivro;
 
-    avisoModel.editar(novaDescricao, idAviso)
+    avisoModel.editar(novaDescricao, idLivro)
         .then(
             function (resultado) {
                 res.json(resultado);
@@ -108,9 +112,9 @@ function editar(req, res) {
 }
 
 function deletar(req, res) {
-    var idAviso = req.params.idAviso;
+    var idLivro = req.params.idLivro;
 
-    avisoModel.deletar(idAviso)
+    avisoModel.deletar(idLivro)
         .then(
             function (resultado) {
                 res.json(resultado);

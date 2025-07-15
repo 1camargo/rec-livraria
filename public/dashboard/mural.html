@@ -88,7 +88,7 @@
                             <label for="precoVenda">
                                 Preco de venda do livro:
                                 <br>
-                                <input name="precoVenda" id="precoVenda" type="number"></input>
+                                <input name="precoVenda" id="precoVenda" type="number" disabled></input>
                             </label>
                             <br>
                             <br>
@@ -132,20 +132,58 @@
 </html>
 
 <script>
+    var vtValidacaoAutor = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "'", "!", "@",
+        "#", "$", "%", "&", "*", "(", ")", "_", "-"];
+
     function limparFormulario() {
         document.getElementById("form_postagem").reset();
     }
 
+
+
     function publicar() {
+        var precoCompra = form_postagem.precoCompra.value;
+        var genero = form_postagem.genero.value;
+        var precoVenda = 0;
+
+        if (precoCompra >= 100 && (genero == 1 || genero == 2)) {
+            precoVenda = precoCompra * 1.225;
+        } else if (precoCompra >= 1 && precoCompra <= 50 && (genero == 1 || genero == 3)) {
+            precoVenda = precoCompra * 1.25;
+        } else if (precoCompra >= 50 && precoCompra <= 100 && (genero == 4)) {
+            precoVenda = precoCompra * 1.275;
+        } else {
+            precoVenda = precoCompra;
+        }
+
+        var validacaoAutor = false;
+
         var corpo = {
             titulo: form_postagem.titulo.value,
             autor: form_postagem.autor.value,
             precoCompra: form_postagem.precoCompra.value,
-            precoVenda: form_postagem.precoVenda.value,
+            precoVenda: precoVenda,
             qtdEstoque: form_postagem.qtdEstoque.value,
-            
+            genero: genero
         }
 
+        for (var i = 0; i < autor.length; i++) {
+            if (vtValidacaoAutor.includes(corpo.autor)) {
+                validacaoAutor = true;
+        }
+    }
+
+    if (!corpo.titulo || !corpo.autor || !corpo.precoCompra || !corpo.precoVenda 
+        || !corpo.qtdEstoque) {
+            alert("Os campos não podem estar em branco!");
+            return;
+        } else if (validacaoAutor) {
+            alert("O nome do autor não é valido!");
+            return;
+        } else if (!corpo.precoCompra) {
+            alert("O preço de compra não pode ser zero.")
+            return;
+        }
         fetch(`/avisos/publicar`, {
             method: "post",
             headers: {
@@ -175,17 +213,17 @@
 
     }
 
-    function editar(idAviso) {
-        sessionStorage.ID_POSTAGEM_EDITANDO = idAviso;
-        console.log("Cliquei em editar - " + idAviso);
-        window.alert("Você será redirecionado à página de edição do livro de ID " + idAviso);
+    function editar(idLivro) {
+        sessionStorage.ID_POSTAGEM_EDITANDO = idLivro;
+        console.log("Cliquei em editar - " + idLivro);
+        window.alert("Você será redirecionado à página de edição do livro de ID " + idLivro);
         window.location = "/dashboard/edicao-aviso.html"
 
     }
 
-    function deletar(idAviso) {
-        console.log("Criar função de apagar livro escolhido - ID" + idAviso);
-        fetch(`/avisos/deletar/${idAviso}`, {
+    function deletar(idLivro) {
+        console.log("Criar função de apagar livro escolhido - ID" + idLivro);
+        fetch(`/avisos/deletar/${idLivro}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json"
@@ -232,39 +270,44 @@
                         var spanPrecoCompra = document.createElement("span");
                         var spanPrecoVenda = document.createElement("span");
                         var spanQtdEstoque = document.createElement("span");
+                        var spanGenero = document.createElement("span");
                         var divButtons = document.createElement("div");
                         var btnEditar = document.createElement("button");
                         var btnDeletar = document.createElement("button");
 
 
-                        spanID.innerHTML = "ID: <b>" + publicacao.idAviso + "</b>";
+                        spanID.innerHTML = "ID: <b>" + publicacao.idLivro + "</b>";
                         spanTitulo.innerHTML = "<br>Título: <b>" + publicacao.titulo + "</b>";
-                        spanAutor.innerHTML = "<br>Autor: <b>" + publicacao.nome + "</b>";
-                        divPrecoCompra.innerHTML = "<br>Preço de compra: <b>" + publicacao.precoCompra + "</b>";
-                        divPrecoVenda.innerHTML = "<br>Preço de venda: <b>" + publicacao.precoCompra + "</b>";
-                        divQtdEstoque.innerHTML = "<br>Quantidade em estoque: <b>" + publicacao.qtdEstoque + "</b>";
+                        spanAutor.innerHTML = "<br>Autor: <b>" + publicacao.autor + "</b>";
+                        spanPrecoCompra.innerHTML = "<br>Preço de compra: <b>" + publicacao.precoCompra + "</b>";
+                        spanPrecoVenda.innerHTML = "<br>Preço de venda: <b>" + publicacao.precoCompra + "</b>";
+                        spanQtdEstoque.innerHTML = "<br>Quantidade em estoque: <b>" + publicacao.qtdEstoque + "</b>";
+                        spanGenero.innerHTML = "<br>Gênero do livro: <b>" + publicacao.nome + "</b>";
                         btnEditar.innerHTML = "Editar";
                         btnDeletar.innerHTML = "Deletar";
 
                         divPublicacao.className = "publicacao";
-                        spanTitulo.id = "inputNumero" + publicacao.idAviso;
-                        spanNome.className = "publicacao-nome";
+                        spanTitulo.id = "inputNumero" + publicacao.idLivro;
+                        spanAutor.className = "publicacao-nome";
                         spanTitulo.className = "publicacao-titulo";
 
                         divButtons.className = "div-buttons"
 
                         btnEditar.className = "publicacao-btn-editar"
-                        btnEditar.id = "btnEditar" + publicacao.idAviso;
-                        btnEditar.setAttribute("onclick", `editar(${publicacao.idAviso})`);
+                        btnEditar.id = "btnEditar" + publicacao.idLivro;
+                        btnEditar.setAttribute("onclick", `editar(${publicacao.idLivro})`);
 
                         btnDeletar.className = "publicacao-btn-editar"
-                        btnDeletar.id = "btnDeletar" + publicacao.idAviso;
-                        btnDeletar.setAttribute("onclick", `deletar(${publicacao.idAviso})`);
+                        btnDeletar.id = "btnDeletar" + publicacao.idLivro;
+                        btnDeletar.setAttribute("onclick", `deletar(${publicacao.idLivro})`);
 
                         divPublicacao.appendChild(spanID);
-                        divPublicacao.appendChild(spanNome);
                         divPublicacao.appendChild(spanTitulo);
-                        divPublicacao.appendChild(divDescricao);
+                        divPublicacao.appendChild(spanAutor);
+                        divPublicacao.appendChild(spanPrecoCompra);
+                        divPublicacao.appendChild(spanPrecoVenda);
+                        divPublicacao.appendChild(spanQtdEstoque);
+                        divPublicacao.appendChild(spanGenero);
                         divPublicacao.appendChild(divButtons);
                         divButtons.appendChild(btnEditar);
                         divButtons.appendChild(btnDeletar);
